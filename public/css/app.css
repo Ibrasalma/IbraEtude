@@ -1,0 +1,35 @@
+body{
+	padding-top: 4em;
+	background-color:#ECF0F1;
+	font-family: 'Roboto';font-size: 16px;
+}
+ul {
+	padding: 0;
+	list-style: none;
+}
+.navbar-brand {
+  	float: left;
+    height:auto;
+    padding: 10px 10px;
+    font-size: 18px;
+    line-height: 20px;
+}
+.navbar-brand>img{ 
+	width:80%;
+}
+.navbar-inverse .navbar-nav > li > a {
+    color: #F39C12;
+}
+.navbar-inverse .navbar-nav > li > a:hover {
+   background-color: #009688;
+}
+#banner {
+	height: 70px;
+	padding: 0;
+	margin-bottom: 0px;
+	background: #fff url('/images/navbar.png') no-repeat;
+	color: #333;
+}
+footer{
+	margin-top: 2em 0;
+}
