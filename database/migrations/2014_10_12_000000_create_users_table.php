@@ -23,7 +23,6 @@ class CreateUsersTable extends Migration
             $table->integer('droit_id')->default(2);
             $table->rememberToken();
             $table->timestamps();
-            $table->timestamp('last_seen');
         });
     }
 
