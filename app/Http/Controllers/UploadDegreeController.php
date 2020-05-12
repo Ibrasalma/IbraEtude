@@ -38,7 +38,13 @@ class UploadDegreeController extends Controller
      */
     public function store(UploadContactRequest $request)
     {
-        upload('App\Models\Degree',$request,'images/diplome');
+        $appli = $request->application;
+        $nombre = Degree::where('user_id',$appli)->count();
+        if($nombre >= 1){
+            flashy()->error('Vous ne pouvez pas ajouter plus de 1 fichier');
+        }else{
+            upload('App\Models\Degree',$request,'images/diplome');
+        }
         return back();
     }
 

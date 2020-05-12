@@ -54,31 +54,35 @@
 	<div class="col-lg-3 col-md-3">
 		<div class="widget-sidebar">
 			<div class="well">
-				<h4><i class="fa fa-search"></i> Rechercher...</h4>
 				<form action="">
-					<div class="input-group">
-						<input type="text" class="form-control">
-						<span class="input-group-btn">
-							<button class="btn btn-default" type="button">
-								<i class="fa fa-search"></i>
-							</button>
-						</span>
-					</div>
-					<!-- /input-group -->
+					<h4><i class="fa fa-search"></i> Rechercher la fac</h4>
+					<form action="">
+						<div class="input-group">
+							<input type="text" class="form-control">
+							<span class="input-group-btn">
+								<button class="btn btn-default" type="button">
+									<i class="fa fa-search"></i>
+								</button>
+							</span>
+						</div>
+						<!-- /input-group -->
+					</form>
 				</form>
 			</div>
 			<div class="well">
 				<form action="#" method="" id="vil">
-					<div class="form-group">
-						<label for="ville" class="label-group text-center">faire la recherche par ville</label>
-						<select name="ville" id="ville" class="form-control">
+					<h4><i class="fa fa-search"></i> Rechercher par ville</h4>
+					<div class="input-group">
+					    <select name="ville" id="ville" class="form-control">
 							<option value="">Selectionnez la ville</option>
 							@include('layouts.partials._ville')
 						</select>
+				     	<span class="input-group-btn">
+							<button class="btn btn-default" type="button">
+								<i class="fa fa-search"></i>
+							</button>
+						</span>
 					</div>	
-					<div class="form-group ">
-				        <input type="submit" value="Trouver" class="btn btn-primary btn-block">
-				    </div>
 				</form>
 			</div>
 		</div>

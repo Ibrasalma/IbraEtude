@@ -33,7 +33,7 @@ class HomeController extends Controller
         if ($utilisateur==1) {
             return view('admin.index');
         } else {
-            $fichier = PhotoProfil::where('user_id',auth()->user()->id)->first();
+            $fichier = PhotoProfil::where('user_id',auth()->user()->id)->orderBy('id','desc')->first();
             if(is_null($fichier)){
                 $fichier = 'ib-logo.png';
                 return view('users.home',compact('fichier'));

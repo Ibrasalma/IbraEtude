@@ -38,7 +38,13 @@ class UploadPlanEtudeController extends Controller
      */
     public function store(UploadContactRequest $request)
     {
-        upload('App\Models\StudyPlan',$request,'images/plans');
+        $appli = $request->application;
+        $nombre = StudyPlan::where('user_id',$appli)->count();
+        if($nombre >= 3){
+            flashy()->error('Vous ne pouvez pas ajouter plus de 3 fichier');
+        }else{
+            upload('App\Models\StudyPlan',$request,'images/plans');
+        }
         return back();
     }
 

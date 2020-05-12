@@ -55,11 +55,7 @@
                                             <td>{{ $b->frais }}</td>
                                             <td> 
                                                 <p data-placement="top" data-toggle="tooltip" title="Edit">
-                                                    <form id="bourse" action="{{ route('bourses.voir') }}" method="POST">
-                                                        @csrf
-                                                        <input name="bourse_id" type="text" value="{{ $b->id }}" readonly="" hidden="">
-                                                        <button class="btn btn-primary btn-xs" type="submit">Postuler</button>
-                                                    </form>
+                                                    <a class="btn btn-primary" href="{{ route('bourses.show',$b->id) }}">Postuler</a>
                                                 </p>
                                             </td>
                                         </tr>
@@ -123,11 +119,7 @@
                                             <td>{{ $sortened->frais }}</td>
                                             <td>
                                                 <p data-placement="top" data-toggle="tooltip" title="Edit">
-                                                    <form id="bourse" action="{{ route('bourses.voir') }}" method="POST">
-                                                        @csrf
-                                                        <input name="bourse_id" type="text" value="{{ $sortened->id }}" readonly="" hidden="">
-                                                        <button class="btn btn-primary btn-xs" type="submit">Postuler</button>
-                                                    </form>
+                                                    <a class="btn btn-primary" href="{{ route('bourses.show',$sortened->id) }}">Postuler</a>
                                                 </p>
                                             </td>
                                         </tr>

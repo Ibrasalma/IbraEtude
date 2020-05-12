@@ -3,7 +3,7 @@
 @section('content')
 
 <link rel="stylesheet" href="{{ asset('/css/bourse.css') }}">
-@include('layouts.partials._tete',['nom'=>'Detaisl de la bourse','name'=>'Details bourse','valeur'=>$bourse->name])
+@include('layouts.partials._tete',['nom'=>'Details de la bourse','name'=>'Details bourse','valeur'=>$bourse->name])
 
 <div class="container-fluid">
 <link rel="stylesheet" href="{{ asset('/css/tab.css') }}">	
@@ -11,7 +11,7 @@
     <?php 
         $univers = App\Models\Bourse::find($bourse->id)->university;
         $program = App\Models\Bourse::find($bourse->id)->programme;
-        $commentaire = App\Models\Avi::where('approuved',1)->get();
+        $commentaire = App\Models\Avi::where('bourse_id',$bourse->id)->where('approuved',1)->get();
         $university = $univers->name;
         $programme = $program->name;
         $domaine = $program->domaine;
@@ -53,8 +53,6 @@
 		                    		<li class="list-group-item">Avec Allocation mensuel: {{ stipend($bourse) }}</li>
 	                    		</p>
                     		</li>
-                    		
-                    		
                     	</ul>
                     </div>
                 </div>
@@ -110,8 +108,8 @@
             </div>
         </div>
         <div class="row">
-        <!-- the comments -->
-        @forelse ($commentaire as $com)
+           <button type="button" class="btn btn-warning" id="forrmul">ajax</button>
+            @forelse ($commentaire as $com)
             <h3>
                 <!--div optionnelle pour contenir le tout-->
                 <style>
@@ -132,43 +130,35 @@
                             <img id="tde_4" src="{{ asset('/images/star.png') }}" class="tde"/>
                             <img id="tde_5" src="{{ asset('/images/star.png') }}" class="tde"/>
                         </div>
-                        <a href="{{ route('bourse.note') }}" onclick="event.preventDefault();document.getElementById('bourse').submit();" class="btn btn-success btn-xs">vote</a>
-                        <form id="bourse" action="{{ route('bourse.note') }}" method="POST">
-                            @csrf
-                            <input type="text" name="user_id" value="{{ auth()->user()->id }}" hidden="">
-                            <input type="text" name="bourse_id" value="{{ $bourse->id }}" hidden="">
-                            <input name="note" id="note" type="text" value="" readonly="" hidden="" onsubmit="entree()">
-                        </form>
                     </div>
                 </div>
                 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
                 <script src="{{ asset('/js/vote.js') }}"></script>
-                <i class="fa fa-comment"></i> L'utilisateur {{ $user = App\Models\Avi::find($com->id)->user->username }} a dit le :<small> {{ dateConnection($com->updated_at) }} à {{ heure($com->updated_at) }}</small>
+                <ul id="inserted_data">
+                    <li><i class="fa fa-comment"></i> L'utilisateur {{ $user = App\Models\Avi::find($com->id)->user->username }} a dit le :<small> {{ dateConnection($com->updated_at) }} à {{ heure($com->updated_at) }}</small></li>
+                </ul>
+                
             </h3>
             <p>{{ substr($com->avi,3,-4) }}</p>
-        @empty
-            {{ 'Aucun commentaire approuvé, soyez le premier à en laisser' }}
-        @endforelse
-        @auth
-            <script src="//tinymce.cachefly.net/4.0/tinymce.min.js"></script>
-            <script src="{{ asset('/js/format.js') }}"></script>
-            <form action="{{ route('bourse.comment') }}" method="POST">
-                @csrf
+            @empty
+                {{ 'Aucun commentaire approuvé, soyez le premier à en laisser' }}
+            @endforelse
+            @auth
+            <div id="success">
+ 
+            </div>
+            <form action="{{ route('bourse.commented') }}" method="POST" id="ajax-form-submit">
+                <meta name="_token" content="{{csrf_token()}}" />
                 <input type="text" name="user_id" value="{{ auth()->user()->id }}" hidden="">
                 <input type="text" name="bourse_id" value="{{ $bourse->id }}" hidden="">
                 @include('layouts.partials._format_text',['name'=>'avi'])
                     <button type="submit" name="say" value="" class="btn btn-primary"><i class="fa fa-reply"></i> Soumettre</button>
                 </div>
-            <hr>
             </form>
-            
-            @else
-            <a href="{{ route('login') }}"><i class="glyphicon glyphicon-log-in"></i> Se connecter</a>Pour laisser un commentaire
-        @endauth
-            
+            <hr>
+            @endauth
         </div>
-  
-	</div>
+    </div>
 	<div class="panel panel-default col-md-4">
 		<div class="panel-heading">Comment Postuler</div>
 		<div class="panel-body">
@@ -197,11 +187,46 @@
 						<a class="btn btn-primary btn-xs" data-title="Edit" href="{{ route('application_info') }}">Appliquer maintenant</a>
 					</div>
 					@else
-					<a href="{{ route('login') }}"><i class="glyphicon glyphicon-log-in"></i> Se connecter pour postuler</a>
+                    <div class="text-center">
+					    <a class="btn btn-primary btn-xs" href="{{ route('login') }} }}"><i class="glyphicon glyphicon-log-in"></i> Se connecter pour postuler</a>
+                    </div>
 				@endauth
 				</p>
             </ul> 
         </div>
     </div>
 </div>
+<script src="//tinymce.cachefly.net/4.0/tinymce.min.js"></script>
+<script src="{{ asset('/js/format.js') }}"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#forrmul').click(function () {
+            alert($(this).text());
+        });
+    });
+
+    $(function ()) {
+        $("#ajax-form-submit").submit(function(){
+            // Give the loading icon when data is being submitted
+            $("#success").val('loading...');
+            var form_data = $("#ajax-form-submit").serialize();
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+                }
+            });
+            $.ajax({
+                type:"POST",
+                url: "{{ route('bourse.commented') }}",
+                data : form_data,
+                success: function(data) {
+                    $("#success").html('Inserted into database').delay(3000).fadeOut();
+                    $("#inserted_data").append('<li>'+data.success.avi+'</li>');
+                }
+            });
+        });
+        
+    }
+</script>
 @stop

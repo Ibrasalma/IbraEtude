@@ -38,7 +38,13 @@ class UploadNonCriminalController extends Controller
      */
     public function store(UploadContactRequest $request)
     {
-        upload('App\Models\NonCriminal',$request,'images/policeClearance');
+        $appli = $request->application;
+        $nombre = NonCriminal::where('user_id',$appli)->count();
+        if($nombre >= 2){
+            flashy()->error('Vous ne pouvez pas ajouter plus de 2 fichier');
+        }else{
+            upload('App\Models\NonCriminal',$request,'images/policeClearance');
+        }
         return back();
     }
 

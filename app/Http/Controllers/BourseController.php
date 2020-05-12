@@ -12,9 +12,24 @@ class BourseController extends Controller
 {
     public function voir(Request $request)
     {
-        $bourse = Bourse::findOrFail($request->bourse_id);
-        $request->session()->put('bourse', $bourse->id);
-        return view('bourses.details',compact('bourse'));
+        dd('hello from the other side');
+        $this->validate($request,[
+            'bourse_id'=>'required|integer',
+            'user_id'=>'required|integer',
+            'avi'=>'string'
+        ]);
+        $bourse = $request->bourse_id;
+        $user = $request->user_id;
+        $avi = $request->avi;
+        $approuved = 1;
+        if (Str::contains($avi,'fuck') OR Str::contains($avi,'bitch') OR Str::contains($avi,'asshole') OR Str::contains($avi,'kill') OR Str::contains($avi,'hell') OR Str::contains($avi,'mother')) {
+            $approuved = 0;
+        }
+        Avi::updateOrInsert(['user_id'=>$user,'bourse_id'=>$bourse],['avi'=>$avi,'approuved'=>$approuved]);
+
+
+
+        return back();
     }
     /**
      * Display a listing of the resource.
@@ -83,6 +98,7 @@ class BourseController extends Controller
     {
         $bourse = Bourse::findOrFail($id);
         $request->session()->put('bourse', $bourse->id);
+        
         return view('bourses.details',compact('bourse'));
     }
 

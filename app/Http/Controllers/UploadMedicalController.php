@@ -38,7 +38,13 @@ class UploadMedicalController extends Controller
      */
     public function store(UploadContactRequest $request)
     {
-        upload('App\Models\Medical',$request,'images/medicals');
+        $appli = $request->application;
+        $nombre = Medical::where('user_id',$appli)->count();
+        if($nombre >= 5){
+            flashy()->error('Vous ne pouvez pas ajouter plus de 5 fichier');
+        }else{
+            upload('App\Models\Medical',$request,'images/medicals');
+        }
         return back();
     }
 

@@ -38,7 +38,13 @@ class UploadBankStatementController extends Controller
      */
     public function store(UploadContactRequest $request)
     {
-        upload('App\Models\BankStatement',$request,'images/banks');
+        $appli = $request->application;
+        $nombre = BankStatement::where('user_id',$appli)->count();
+        if($nombre >= 6){
+            flashy()->error('Vous ne pouvez pas ajouter plus de 6 fichier');
+        }else{
+            upload('App\Models\BankStatement',$request,'images/banks');
+        }
         return back();
     }
 

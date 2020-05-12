@@ -38,7 +38,13 @@ class UploadTranscriptOriginalController extends Controller
      */
     public function store(UploadContactRequest $request)
     {
-        upload('App\Models\TranscriptOriginal',$request,'images/releveOriginal');
+        $appli = $request->application;
+        $nombre = TranscriptOriginal::where('user_id',$appli)->count();
+        if($nombre >= 4){
+            flashy()->error('Vous ne pouvez pas ajouter plus de 4 fichier');
+        }else{
+            upload('App\Models\TranscriptOriginal',$request,'images/releveOriginal');
+        }
         return back();
     }
 

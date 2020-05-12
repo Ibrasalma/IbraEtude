@@ -55,10 +55,34 @@ Route::get('/applicationEtape4', 'ApplicationController@etape4')->name('applicat
 Route::get('/user/profile', 'UserController@profil')->name('profile_path');
 Route::get('/application/modification','ApplicationController@modifie')->name('applications.modifie');
 Route::get('/application/liste','ApplicationController@view')->name('application.voir');
+Route::get('/etudiant/ajouter/','ApplicationController@ajoutEtudiant')->name('etudiant.add');
 
-Route::post('/bourse/view','BourseController@voir')->name('bourses.voir');
+//Route::post('/bourse/view/','BourseController@voir')->name('bourses.voir');
 Route::post('/university/view','UniversityController@voir')->name('university.voir');
 Route::post('/applicationEtape2/background','EtudiantStoryController@insert')->name('background.insert');
 Route::post('/application/visualiser','ApplicationController@visualiser')->name('application.visualiser');
-Route::post('/bourse/commentaire','AviController@comment')->name('bourse.comment');
+//Route::post('/bourse/commentaire','AviController@comment')->name('bourse.comment');
 Route::post('/bourse/note','AviController@note')->name('bourse.note');
+
+// Post Request (While going through form data we dont need to pass data through url)
+Route::post('/bourse/view', 'BourseController@voir')->name('bourses.voir');
+
+Route::post('/bourse/detail', function(){
+
+	$data = Input::except('_token');
+	dd(DB::table('avis')->insert($data));
+	 
+	//Fetch the last record inserted
+	$id=DB::getPdo()->lastInsertId();
+	 
+	$inserted_data = DB::table('avis')->where('id',$id)->first();
+	return Response::json(['success'=>$inserted_data]);
+
+})->name('bourse.commented');
+
+Route::get('/essai', function()
+{
+	return view('pages.essai');
+});
+
+Route::post('post-data','PageController@insertData')->name('post_path');

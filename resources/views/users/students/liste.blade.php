@@ -45,7 +45,7 @@
                         <td>{{ $e->highest_degree }}</td>
                         <td>
                           <p data-placement="top" data-toggle="tooltip" title="Edit">
-                            <a class="btn btn-primary btn-xs" data-title="Edit" href="{{ route('application_step1') }}" >Editer</a>
+                            <a class="btn btn-primary btn-xs" data-title="Edit" href="{{ route('application_step1') }}" >Selectionner</a>
                           </p>
                         </td>
                       
@@ -55,7 +55,7 @@
                   <tfoot>
                     <th colspan="10">
                       <div class="text-center">
-                        <a class="btn btn-primary" href="{{ route('application_step1') }}">Ajouter</a>
+                        <a class="btn btn-primary" href="{{ route('etudiant.add') }}">Ajouter</a>
                       </div>
                     </th>
                   </tfoot>

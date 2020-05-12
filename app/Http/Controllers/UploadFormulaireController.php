@@ -38,7 +38,13 @@ class UploadFormulaireController extends Controller
      */
     public function store(UploadContactRequest $request)
     {
-        upload('App\Models\Formulaire',$request,'images/formulaire');
+        $appli = $request->application;
+        $nombre = Formulaire::where('user_id',$appli)->count();
+        if($nombre >= 2){
+            flashy()->error('Vous ne pouvez pas ajouter plus de 2 fichier');
+        }else{
+            upload('App\Models\Formulaire',$request,'images/formulaire');
+        }
         return back();
     }
 

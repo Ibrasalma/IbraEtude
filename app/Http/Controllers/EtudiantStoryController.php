@@ -32,16 +32,17 @@ class EtudiantStoryController extends Controller
                 return redirect(route('bourses.liste'));
             } else {
                 $passport = EtudiantStory::where('id',$request->background)->first()->passport_number;
-                $application->code = $passport.''.$date->format('YM').'E'.$request->user_id.'B'.$bourse;
+                $code = $request->passport_number.'-'.$date->format('YMD').'-'.'E'.$request->user_id.'-'.'B'.$bourse;
+                $application->code = $code;
                 $etudiant_id = session('etudiant');
                 $application->etudiant_id = $etudiant_id;
                 $application->bourse_id = $bourse;
                 $application->save();
 
-                if($application->save()){
-                    $applica = Application::all()->orderBy('id','desc')->first()->id;
-                    $request->session()->put('id',$applica);
-                }
+                
+                $applica = Application::where('code',$code)->first()->id;
+                $request->session()->put('id',$applica);
+                
 
                 flashy()->message('vous avez fait une nouvelle application');
             }
@@ -65,7 +66,7 @@ class EtudiantStoryController extends Controller
         $programme = Bourse::find($b)->programme;
         $filiere = $programme->name;
         $diplome = $programme->degree;
-        $fichier = PhotoProfil::where('user_id',auth()->user()->id)->first();
+        $fichier = PhotoProfil::where('user_id',auth()->user()->id)->orderBy('id','desc')->first();
         $fichier = image($fichier);
         return view('users.applications.voir',compact('id','code','nom','diplome','filiere','status','date','fichier','b'));
     }
@@ -73,7 +74,7 @@ class EtudiantStoryController extends Controller
     public static function listEtudiant(Request $request)
     {
         $user = auth()->user()->id;
-        $fichier = PhotoProfil::where('user_id',auth()->user()->id)->first();
+        $fichier = PhotoProfil::where('user_id',auth()->user()->id)->orderBy('id','desc')->first();
         $fichier = image($fichier);
         $etudiant = EtudiantStory::where('user_id',$user)->get();
         if(count($etudiant)!=0){
@@ -104,7 +105,7 @@ class EtudiantStoryController extends Controller
             $appli = Application::where('etudiant_id',$student)->get();
        
             foreach ($appli as $e) {
-                $fichier = PhotoProfil::where('user_id',auth()->user()->id)->first();
+                $fichier = PhotoProfil::where('user_id',auth()->user()->id)->orderBy('id','desc')->first();
                 $fichier = image($fichier);
                 $b = $e->bourse_id;
                 $programme = Bourse::find($b)->programme;
@@ -125,7 +126,7 @@ class EtudiantStoryController extends Controller
     public function voir(Request $request){
         
         $user = auth()->user()->id;
-        $fichier = PhotoProfil::where('user_id',auth()->user()->id)->first();
+        $fichier = PhotoProfil::where('user_id',auth()->user()->id)->orderBy('id','desc')->first();
         $fichier = image($fichier);
 
         if (!is_null(session('bourse'))) {
@@ -139,7 +140,7 @@ class EtudiantStoryController extends Controller
                     if (!is_null($appli)) {
 
                         $etud = $appli->etudiant_id;
-                        $etudiant = EtudiantStory::where('id','<>',$etud)->get();
+                        $etudiant = EtudiantStory::where('user_id',auth()->user()->id)->where('id','<>',$etud)->get();
                         if (count($etudiant)!=0) {
                             foreach ($etudiant as $et) {
                                 $request->session()->put('etudiant', $et->id);
@@ -148,6 +149,7 @@ class EtudiantStoryController extends Controller
                         } else {
                             $etudiant = EtudiantStory::where('user_id',$user)->get();
                             foreach ($etudiant as $value) {
+                                $request->session()->put('etudiant', $et->id);
                                 return view('users.students.liste',compact('user','bourse','fichier','etudiant'));
                             }
                         }
@@ -155,7 +157,6 @@ class EtudiantStoryController extends Controller
                     } else {
                         $request->session()->put('etudiant', $value->id);
                         return view('users.students.liste',compact('user','bourse','fichier','etudiant'));
-
                     }
                 }
             }else{
@@ -233,59 +234,112 @@ class EtudiantStoryController extends Controller
         $code_postal = $request->code_postal;
         $mobile = $request->mobile;
 
+        if(Str::contains(url()->previous(),"http://localhost:8000/etudiant/ajouter")){
+            EtudiantStory::create([
+                'user_id'=>$user_id,
+                'family_name'=>$family_name,
+                'given_name'=>$given_name,
+                'birthdate'=>$birthdate,
+                'birthplace'=>$birthplace,
+                'passport_number'=>$passport_number,
+                'passport_expire'=>$passport_expire,
+                'nationality'=>$nationality,
+                'gender'=>$gender,
+                'marital_status'=>$marital_status,
+                'occupation'=>$occupation,
+                'affiliated'=>$affiliated,
+                'highest_degree'=>$highest_degree,
+                'relligion'=>$relligion,
+                'hobbies'=>$hobbies,
+                'is_in_china'=>$is_in_china,
+                'studied_china'=>$studied_china,
+                'pays'=>$pays,
+                'ville'=>$ville,
+                'adresse'=>$adresse,
+                'code_postal'=>$code_postal,
+                'mobile'=>$mobile
+            ]);
+            $etudiantE = EtudiantStory::where('user_id',$user_id)->orderBy('id','desc')->first()->id;
+            $request->session()->put('etudiant',$etudiantE);
+
+            $date = Carbon::now();
+            $bourse = session('bourse');
+            if (is_null($bourse)) {
+                flashy()->message('Aucune bourse seléctionnez veuillez en selectionner pour continuer avec l\'étape 3');
+                return back();
+            } else {
+
+                $code = $request->passport_number.'-'.$date->format('YMD').'-'.'E'.$request->user_id.'-'.'B'.$bourse;
+                $etudiant_id = $etudiantE;
+                $application = Application::updateOrInsert(
+                    [
+                        'code'=>$code
+                    ],[
+                        'etudiant_id'=>$etudiant_id,
+                        'bourse_id'=>$bourse,
+                ]);
+                    
+                $applica = Application::where('code',$code)->first()->id;
+                $request->session()->put('id',$applica);
+
+                flashy()->message('vous avez fait une nouvelle application');
+                return back();
+            }            
+        }
+
         if (!is_null(session('etudiant'))) {
 
             flashy()->message('cet etudiant existe déjà, vous avez enregistré la modification, appuyez sur suivant pour continuer');
             $etude = EtudiantStory::findOrfail(session('etudiant'));
             $etude->update([
-                    'user_id'=>$user_id,
-                    'family_name'=>$family_name,
-                    'given_name'=>$given_name,
-                    'birthdate'=>$birthdate,
-                    'birthplace'=>$birthplace,
-                    'passport_number'=>$passport_number,
-                    'passport_expire'=>$passport_expire,
-                    'nationality'=>$nationality,
-                    'gender'=>$gender,
-                    'marital_status'=>$marital_status,
-                    'occupation'=>$occupation,
-                    'affiliated'=>$affiliated,
-                    'highest_degree'=>$highest_degree,
-                    'relligion'=>$relligion,
-                    'hobbies'=>$hobbies,
-                    'is_in_china'=>$is_in_china,
-                    'studied_china'=>$studied_china,
-                    'pays'=>$pays,
-                    'ville'=>$ville,
-                    'adresse'=>$adresse,
-                    'code_postal'=>$code_postal,
-                    'mobile'=>$mobile
-                ]);
-            if ($etude->update()) {
-                $etudiantE = EtudiantStory::where('user_id',$user_id)->orderBy('id','desc')->first()->id;
-                $request->session()->put('etudiant',$etudiantE);
-            }
+                'user_id'=>$user_id,
+                'family_name'=>$family_name,
+                'given_name'=>$given_name,
+                'birthdate'=>$birthdate,
+                'birthplace'=>$birthplace,
+                'passport_number'=>$passport_number,
+                'passport_expire'=>$passport_expire,
+                'nationality'=>$nationality,
+                'gender'=>$gender,
+                'marital_status'=>$marital_status,
+                'occupation'=>$occupation,
+                'affiliated'=>$affiliated,
+                'highest_degree'=>$highest_degree,
+                'relligion'=>$relligion,
+                'hobbies'=>$hobbies,
+                'is_in_china'=>$is_in_china,
+                'studied_china'=>$studied_china,
+                'pays'=>$pays,
+                'ville'=>$ville,
+                'adresse'=>$adresse,
+                'code_postal'=>$code_postal,
+                'mobile'=>$mobile
+            ]);
+            $etudiantE = EtudiantStory::where('user_id',$user_id)->orderBy('id','desc')->first()->id;
+            $request->session()->put('etudiant',$etudiantE);
+            
             if(!is_null(session('id'))){
                 flashy()->message('application existe déjà');
                 return back();
             }else{
-                $application = new Application();
                 $date = Carbon::now();
                 $bourse = session('bourse');
                 if (is_null($bourse)) {
                     return back();
                 } else {
 
-                    $application->code = $request->passport_number.''.$date->format('YM').'E'.$request->user_id.'B'.$bourse;
-                    $etudiant_id = session('etudiant');
-                    $application->etudiant_id = $etudiant_id;
-                    $application->bourse_id = $bourse;
-                    $application->save();
-
-                    if($application->save()){
-                        $applica = Application::all()->orderBy('id','desc')->first()->id;
-                        $request->session()->put('id',$applica);
-                    }
+                    $code = $request->passport_number.'-'.$date->format('YMD').'-'.'E'.$request->user_id.'-'.'B'.$bourse;
+                    $etudiant_id = $etudiantE;
+                    $application = Application::updateOrInsert(
+                        [
+                            'code'=>$code
+                        ],[
+                            'etudiant_id'=>$etudiant_id,
+                            'bourse_id'=>$bourse,
+                    ]);
+                    
+                    $applica = Application::where('code',$code)->first()->id;
+                    $request->session()->put('id',$applica);
 
                     flashy()->message('vous avez fait une nouvelle application');
                     return back();
@@ -316,7 +370,7 @@ class EtudiantStoryController extends Controller
                 'code_postal'=>$code_postal,
                 'mobile'=>$mobile
             ]);
-            $etudiantE = EtudiantStory::where('user_id',$user_id)->orderBy('id','desc')->first()->id;
+            $etudiantE = EtudiantStory::where('passport_number',$passport_number)->first()->id;
             $request->session()->put('etudiant',$etudiantE);
 
             
@@ -324,8 +378,6 @@ class EtudiantStoryController extends Controller
                 flashy()->message('application existe déjà');
                 return back();
             }else{
-                $application = new Application();
-                $etudiant = EtudiantStory::where('user_id',auth()->user()->id)->orderBy('id','desc')->first();
                 $date = Carbon::now();
 
                 $bourse = session('bourse');
@@ -333,16 +385,20 @@ class EtudiantStoryController extends Controller
                     return back();
                 } else {
 
-                    $application->code = $request->passport_number.''.$date->format('YM').'E'.$request->user_id.'B'.$bourse;
-                    $etudiant_id = $etudiant->id;
-                    $application->etudiant_id = $etudiant_id;
-                    $application->bourse_id = $bourse;
-                    $application->save();
+                    $code = $request->passport_number.'-'.$date->format('YMD').'-'.'E'.$request->user_id.'-'.'B'.$bourse;
+                    $etudiant_id = $etudiantE;
+                    $application = Application::updateOrInsert(
+                        [
+                            'code'=>$code
+                        ],[
+                            'etudiant_id'=>$etudiant_id,
+                            'bourse_id'=>$bourse,
+                    ]);
 
-                    if($application->save()){
-                        $applica = Application::all()->orderBy('id','desc')->first()->id;
-                        $request->session()->put('id',$applica);
-                    }
+                    
+                    $applica = Application::where('code',$code)->first()->id;
+                    $request->session()->put('id',$applica);
+                   
 
                     flashy()->message('vous avez fait une nouvelle application');
                     return back();
@@ -397,14 +453,15 @@ class EtudiantStoryController extends Controller
                 flashy()->error('Avant de continuer veuillez selectionner une bourse');
                 return redirect(route('bourses.liste'));
             } else {
-                $application->code = $request->passport_number.''.$date->format('YM').'E'.$request->user_id.'B'.$bourse;
+                $code = $request->passport_number.'-'.$date->format('YMD').'-'.'E'.$request->user_id.'-'.'B'.$bourse;
+                $application->code = $code;
                 $etudiant_id = session('etudiant');
                 $application->etudiant_id = $etudiant_id;
                 $application->bourse_id = $bourse;
                 $application->save();
 
                 if($application->save()){
-                    $applica = Application::all()->orderBy('id','desc')->first()->id;
+                    $applica = Application::where('code',$code)->first()->id;
                     $request->session()->put('id',$applica);
                 }
 

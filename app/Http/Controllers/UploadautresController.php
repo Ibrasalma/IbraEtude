@@ -38,7 +38,13 @@ class UploadautresController extends Controller
      */
     public function store(UploadContactRequest $request)
     {
-        upload('App\Models\AutreApplication',$request,'images/autres');
+        $appli = $request->application;
+        $nombre = AutreApplication::where('user_id',$appli)->count();
+        if($nombre >= 6){
+            flashy()->error('Vous ne pouvez pas ajouter plus de 6 fichier');
+        }else{
+            upload('App\Models\AutreApplication',$request,'images/autres');
+        }
         return back();
     }
 

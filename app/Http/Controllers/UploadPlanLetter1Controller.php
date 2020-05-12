@@ -38,7 +38,13 @@ class UploadPlanLetter1Controller extends Controller
      */
     public function store(UploadContactRequest $request)
     {
-        upload('App\Models\Letter1',$request,'images/letter1s');
+        $appli = $request->application;
+        $nombre = Letter1::where('user_id',$appli)->count();
+        if($nombre >= 2){
+            flashy()->error('Vous ne pouvez pas ajouter plus de 2 fichier');
+        }else{
+            upload('App\Models\Letter1',$request,'images/letter1s');
+        }
         return back();
     }
 

@@ -38,7 +38,13 @@ class UploadLangueController extends Controller
      */
     public function store(UploadContactRequest $request)
     {
-        upload('App\Models\Language',$request,'images/langues');
+        $appli = $request->application;
+        $nombre = Language::where('user_id',$appli)->count();
+        if($nombre >= 2){
+            flashy()->error('Vous ne pouvez pas ajouter plus de 2 fichier');
+        }else{
+            upload('App\Models\Language',$request,'images/langues');
+        }
         return back();
     }
 

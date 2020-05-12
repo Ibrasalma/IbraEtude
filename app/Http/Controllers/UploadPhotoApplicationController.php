@@ -38,7 +38,13 @@ class UploadPhotoApplicationController extends Controller
      */
     public function store(UploadContactRequest $request)
     {
-        upload('App\Models\PhotoApplication',$request,'images/photos');
+        $appli = $request->application;
+        $nombre = PhotoApplication::where('user_id',$appli)->count();
+        if($nombre >= 1){
+            flashy()->error('Vous ne pouvez pas ajouter plus de 1 fichier');
+        }else{
+            upload('App\Models\PhotoApplication',$request,'images/photos');
+        }
         return back();
     }
 

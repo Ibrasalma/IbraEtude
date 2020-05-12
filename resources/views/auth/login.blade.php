@@ -22,6 +22,15 @@
                                         <input name="login" id="login" type="text" tabindex="1" class="form-control" placeholder="tapez votre email ou nom d'utilisateur" value="{{ old('login') }}" required="required" autocomplete="email" autofocus>
                                         {!! $errors->first('login','<span class = "error">:message</span>') !!}
                                     </div>
+                                    <!-- ============================= Fetching the Previous URL ================================= -->
+                                    <div class="form-group">
+                                        @if (Request::has('previous'))
+                                            <input type="hidden" name="previous_url" value="{{ Request::get('previous_url') }}">
+                                        @else
+                                            <input type="hidden" name="previous_url" value="{{ URL::previous() }}">
+                                        @endif
+                                    </div>
+                                    <!-- ============================= Block Ends ================================= -->
                                     <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
                                         <label for="password" class="label-control">{{ __('Password') }}</label>
                                         <input id="password" type="password" name="password" tabindex="2" class="form-control" placeholder="Password" required="required" autocomplete="current-password">

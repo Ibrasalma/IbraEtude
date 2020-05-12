@@ -338,7 +338,7 @@
                         </div>
                         <ul class="list-inline pull-right">
                             <li><a href="{{ route('application_step3') }}" type="button" class="btn btn-default prev-step">precedent</a></li>
-                            <li><a href="{{ route('applications.modifie') }}" class="btn btn-success next-step">Soumettre</a></li>
+                            <li><a href="{{ route('applications.modifie') }}" onsubmit="return confirm('Êtes-vous sûr de vouloir Soumettre l\'application?');" class="btn btn-success next-step">Soumettre</a></li>
                             <li><a href="{{ route('application_step1') }}" type="button" class="btn btn-primary next-step">editer</a></li>
                         </ul>
                     </div>

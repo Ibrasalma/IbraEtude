@@ -19,7 +19,7 @@ trait Applicable
 
             $etudiantStory = EtudiantStory::whereId($application->etudiant_id)->first();
 
-    		$application->code = Str::slug($etudiantStory->nationality.''.$date->format('YM').'E'.$etudiantStory->user_id.'B'.session('bourse'));
+    		$application->code = Str::upper($etudiantStory->passport_number.'-'.$date->format('YMD').'-'.'E'.$etudiantStory->user_id.'-'.'B'.session('bourse'));
     	});
     }
 }
