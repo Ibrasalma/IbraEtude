@@ -453,24 +453,30 @@ class EtudiantStoryController extends Controller
                 flashy()->error('Avant de continuer veuillez selectionner une bourse');
                 return redirect(route('bourses.liste'));
             } else {
-                $code = $request->passport_number.'-'.$date->format('YMD').'-'.'E'.$request->user_id.'-'.'B'.$bourse;
-                $application->code = $code;
-                $etudiant_id = session('etudiant');
-                $application->etudiant_id = $etudiant_id;
-                $application->bourse_id = $bourse;
-                $application->save();
-
-                if($application->save()){
-                    $applica = Application::where('code',$code)->first()->id;
-                    $request->session()->put('id',$applica);
-                }
-
-                    flashy()->message('vous avez fait une nouvelle application');
-                    return back();
+                $this->application(Request $request);
+                
+                flashy()->message('vous avez fait une nouvelle application');
+                return back();
             }
         }
         flashy()->message('informations etudes enregistré avec succès');
         return back();
+    }
+
+    public function application(Request $request)
+    {
+        $passport = EtudiantStory::where('id',$request->background)->first()->passport_number;
+        $code = $request->passport_number.'-'.$date->format('YMD').'-'.'E'.$request->user_id.'-'.'B'.$bourse;
+        $application->code = $code;
+        $etudiant_id = session('etudiant');
+        $application->etudiant_id = $etudiant_id;
+        $application->bourse_id = $bourse;
+        $application->save();
+
+                
+        $applica = Application::where('code',$code)->first()->id;
+        $request->session()->put('id',$applica);
+
     }
 
     /**
